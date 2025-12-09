@@ -5,7 +5,7 @@
 # Date		: 2019/02/23
 import time
 import RPi.GPIO as GPIO
-import sys
+# import sys # wasnt used 
 from rpi_ws281x import *
 import threading
 

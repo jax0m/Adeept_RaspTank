@@ -6,8 +6,8 @@
 # Author      : William(Based on Adrian Rosebrock's OpenCV code on pyimagesearch.com)
 # Date        : 2018/08/22
 
-import time
-import threading
+# import time # removed wasnt used
+# import threading # removed wasnt used
 import cv2
 import zmq
 import base64
@@ -16,8 +16,8 @@ from picamera.array import PiRGBArray
 import argparse
 import imutils
 from collections import deque
-import psutil
-import os
+# import psutil # removed wasnt used
+# import os # removed wasnt used
 import servo
 import PID
 import LED

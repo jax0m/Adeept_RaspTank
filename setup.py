@@ -4,7 +4,7 @@
 # Date        : 2020/3/14
 
 import os
-import time
+# import time # wasnt used
 
 curpath = os.path.realpath(__file__)
 thisPath = "/" + os.path.dirname(curpath)

@@ -8,7 +8,7 @@
 import time
 import threading
 import move
-import Adafruit_PCA9685
+# import Adafruit_PCA9685 # wasnt used
 import os
 import info
 import RPIservo

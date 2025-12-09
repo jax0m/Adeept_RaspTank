@@ -4,7 +4,7 @@
 # Website     : www.gewbot.com
 # Author      : William
 # Date        : 2018/08/22
-import time
+# import time # wasnt used
 
 
 class Kalman_filter:

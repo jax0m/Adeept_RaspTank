@@ -7,7 +7,7 @@
 # Date        : 2018/10/12
 
 import os
-import sys
+# import sys # wasnt used
 
 def search(path,name):
     for root, dirs, files in os.walk(path):

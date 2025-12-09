@@ -8,7 +8,6 @@ import switch
 import datetime
 import Kalman_filter
 import PID
-import time
 import threading
 import imutils
 import robotLight
@@ -30,6 +29,17 @@ ImgIsNone = 0
 
 colorUpper = np.array([44, 255, 255])
 colorLower = np.array([24, 100, 100])
+
+# Import picamera2 instead of cv2
+try:
+    from picamera2 import Picamera2
+    from picamera2.encoders import JpegEncoder
+    from picamera2.encoders import YUVEncoder
+    from picamera2.outputs import FileOutput
+    from picamera2.previews import Preview
+except ImportError:
+    print("picamera2 not available, using fallback to cv2")
+    import cv2
 
 class CVThread(threading.Thread):
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -423,46 +433,102 @@ class Camera(BaseCamera):
     @staticmethod
     def frames():
         global ImgIsNone
-        # camera = cv2.VideoCapture(Camera.video_source)
-        camera = cv2.VideoCapture(-1)
-        if not camera.isOpened():
-            raise RuntimeError('Could not start camera.')
+        # Use picamera2 instead of cv2.VideoCapture
+        try:
+            # Initialize the camera
+            picam2 = Picamera2()
+            # Configure the camera
+            camera_config = picam2.create_preview_configuration(main={"size": (640, 480)})
+            picam2.configure(camera_config)
+            # Start the camera
+            picam2.start()
+            # Create the CVThread
+            cvt = CVThread()
+            cvt.start()
 
-        cvt = CVThread()
-        cvt.start()
-
-        while True:
-            # read current frame
-            _, img = camera.read()
-            if img is None:
-                if ImgIsNone == 0:
-                    print("--------------------")
-                    print("\033[31merror: Unable to read camera data.\033[0m")
-                    print("\033[33mIt may be that the Legacy camera is not turned on or the camera is not connected correctly.\033[0m")
-                    print("Open the Legacy camera: Enter in Raspberry Pi\033[34m'sudo raspi-config'\033[0m -->Select\033[34m'3 Interface Options'\033[0m -->\033[34m'I1 Legacy Camera'\033[0m.")
-                    print("Use the command: \033[34m'sudo killall python3'\033[0m. Close the self-starting program webServer.py")
-                    print("Use the command: \033[34m'raspistill -t 1000 -o image.jpg'\033[0m to check whether the camera can be used correctly.")
-                    print("Press the keyboard keys \033[34m'Ctrl + C'\033[0m multiple times to exit the current program.")
-                    print("--------Ctrl+C quit-----------")
-                    ImgIsNone = 1
-                continue
-
-            if Camera.modeSelect == 'none':
-                switch.switch(1,0)
-                cvt.pause()
-            else:
-                if cvt.CVThreading:
-                    pass
-                else:
-                    cvt.mode(Camera.modeSelect, img)
-                    cvt.resume()
-                try:
-                    img = cvt.elementDraw(img)
-                except:
-                    pass
-            
-
-
-            # encode as a jpeg image and return it
-            if cv2.imencode('.jpg', img)[0]:
-                yield cv2.imencode('.jpg', img)[1].tobytes()
+            while True:
+                    # Capture frame
+                    frame = picam2.capture_array()
+                    
+                    # Convert to BGR (if needed)
+                    if frame is not None:
+                        # Convert from RGBA to BGR if necessary
+                        if frame.shape[2] == 4:
+                            frame = frame[:, :, :3]
+                        
+                        if Camera.modeSelect == 'none':
+                            switch.switch(1,0)
+                            cvt.pause()
+                        else:
+                            if cvt.CVThreading:
+                                pass
+                            else:
+                                cvt.mode(Camera.modeSelect, frame)
+                                cvt.resume()
+                            try:
+                                frame = cvt.elementDraw(frame)
+                            except:
+                                pass
+                        
+                        # Encode as JPEG and yield
+                        if cv2.imencode('.jpg', frame)[0]:
+                            yield cv2.imencode('.jpg', frame)[1].tobytes()
+                    else:
+                        if ImgIsNone == 0:
+                            print("--------------------")
+                            print("\033[31merror: Unable to read camera data.\033[0m")
+                            print("\033[33mIt may be that the Legacy camera is not turned on or the camera is not connected correctly.\033[0m")
+                            print("Open the Legacy camera: Enter in Raspberry Pi\033[34m'sudo raspi-config'\033[0m -->Select\033[34m'3 Interface Options'\033[0m -->\033[34m'I1 Legacy Camera'\033[0m.")
+                            print("Use the command: \033[34m'sudo killall python3'\033[0m. Close the self-starting program webServer.py")
+                            print("Use the command: \033[34m'raspistill -t 1000 -o image.jpg'\033[0m to check whether the camera can be used correctly.")
+                            print("Press the keyboard keys \033[34m'Ctrl + C'\033[0m multiple times to exit the current program.")
+                            print("--------Ctrl+C quit-----------")
+                            ImgIsNone = 1
+                        continue
+        except Exception as e:
+            print(f"Error: {e}")
+            # Fallback to cv2.VideoCapture if picamera2 fails
+            print("Falling back to cv2.VideoCapture")
+            try:
+                camera = cv2.VideoCapture(Camera.video_source)
+                if not camera.isOpened():
+                    raise RuntimeError('Could not start camera.')
+                
+                cvt = CVThread()
+                cvt.start()
+                
+                while True:
+                    _, img = camera.read()
+                    if img is None:
+                        if ImgIsNone == 0:
+                            print("--------------------")
+                            print("\033[31merror: Unable to read camera data.\033[0m")
+                            print("\033[33mIt may be that the Legacy camera is not turned on or the camera is not connected correctly.\033[0m")
+                            print("Open the Legacy camera: Enter in Raspberry Pi\033[34m'sudo raspi-config'\033[0m -->Select\033[34m'3 Interface Options'\033[0m -->\033[34m'I1 Legacy Camera'\033[0m.")
+                            print("Use the command: \033[34m'sudo killall python3'\033[0m. Close the self-starting program webServer.py")
+                            print("Use the command: \033[34m'raspistill -t 1000 -o image.jpg'\033[0m to check whether the camera can be used correctly.")
+                            print("Press the keyboard keys \033[34m'Ctrl + C'\033[0m multiple times to exit the current program.")
+                            print("--------Ctrl+C quit-----------")
+                            ImgIsNone = 1
+                        continue
+                    
+                    if Camera.modeSelect == 'none':
+                        switch.switch(1,0)
+                        cvt.pause()
+                    else:
+                        if cvt.CVThreading:
+                            pass
+                        else:
+                            cvt.mode(Camera.modeSelect, img)
+                            cvt.resume()
+                        try:
+                            img = cvt.elementDraw(img)
+                        except:
+                            pass
+                    
+                    # Encode as a jpeg image and return it
+                    if cv2.imencode('.jpg', img)[0]:
+                        yield cv2.imencode('.jpg', img)[1].tobytes()
+            except Exception as e:
+                print(f"Fallback error: {e}")
+                raise RuntimeError('Could not start camera.')

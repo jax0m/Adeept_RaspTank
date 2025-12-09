@@ -15,7 +15,7 @@ pwm = Adafruit_PCA9685.PCA9685()
 pwm.set_pwm_freq(50)
 pwm.set_all_pwm(0,300)
 from rpi_ws281x import *
-import argparse
+# import argparse # wasnt used
 import os
 import ultra
 import FPV

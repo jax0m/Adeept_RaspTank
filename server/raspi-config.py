@@ -9,7 +9,7 @@
 import socket
 import time
 import Adafruit_PCA9685
-import os
+# import os # wasnt used
 
 
 pwm = Adafruit_PCA9685.PCA9685()    #Ultrasonic Control

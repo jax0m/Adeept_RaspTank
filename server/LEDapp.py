@@ -4,7 +4,7 @@
 # Website     : based on the code from https://github.com/rpi-ws281x/rpi-ws281x-python/blob/master/examples/strandtest.py
 # Author      : original code by Tony DiCola (tony@tonydicola.com)
 # Date        : 2019/02/23
-import time
+# import time # wasnt used
 from rpi_ws281x import *
 import argparse
 

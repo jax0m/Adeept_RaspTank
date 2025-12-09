@@ -1,3 +1,6 @@
 opencv-python
 zmq
 numpy
+base64
+tkinter
+cv2

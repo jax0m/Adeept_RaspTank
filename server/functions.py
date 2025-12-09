@@ -9,7 +9,7 @@ import threading
 from mpu6050 import mpu6050
 import Adafruit_PCA9685
 import os
-import json
+# import json # removed not used
 import ultra
 import Kalman_filter
 import move
@@ -179,7 +179,7 @@ class Functions(threading.Thread):
 	def automaticProcessing(self):
 		print('automaticProcessing')
 		if self.rangeKeep/3 > ultra.checkdist():
-			 move.move(100, 'backward', 'no', 0.5)
+			move.move(100, 'backward', 'no', 0.5)
 		elif self.rangeKeep > ultra.checkdist():
 			move.move(100, 'no', 'left', 0.5)
 		else:
@@ -267,3 +267,5 @@ if __name__ == '__main__':
 	# fuc.pause()
 	# time.sleep(1)
 	# move.move(80, 'no', 'no', 0.5)
+
+

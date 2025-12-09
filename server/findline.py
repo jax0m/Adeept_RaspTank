@@ -5,7 +5,7 @@
 # Author      : William
 # Date        : 2019/08/28
 import RPi.GPIO as GPIO
-import time
+# import time # removed wasnt used
 import move
 '''
 status     = 1          #Motor rotation

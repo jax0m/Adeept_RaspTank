@@ -12,7 +12,7 @@ import zmq
 import base64
 import numpy as np
 from socket import *
-import sys
+# import sys # wasnt used
 import time
 import threading as thread
 import tkinter as tk
