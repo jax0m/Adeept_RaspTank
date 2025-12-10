@@ -11,8 +11,8 @@ luma.oled
 adafruit-pca9685
 rpi_ws281x
 mpu6050-raspberrypi
-picamera
-picamera2
+picamera # requires 'export READTHEDOCS=True' in session for installing
+# picamera2 # moved to 'sudo apt-get update && sudo apt-get install -y python3-picamera2'
 greenlet
 thread
 RPi.GPIO
